@@ -2,6 +2,8 @@
 Author: "Dania Jafar"
 title: "Homework 3"
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
@@ -14,8 +16,8 @@ library(tidyverse)
 library(p8105.datasets)
 data("instacart")
 ins_aisles = instacart %>% 
-count(aisle, name = "aisle_order_count") %>% 
-arrange(desc(aisle_order_count))
+  count(aisle, name = "aisle_order_count") %>% 
+  arrange(desc(aisle_order_count))
 
 
 library(ggplot2)
@@ -26,29 +28,42 @@ ggplot(aes(x = aisle_order_count, y = aisle)) +
 
 #create a table showing the most popular items in each of three categories
 instacart2 = instacart %>% 
-  dplyr::select(aisle_id, aisle, product_name) %>% 
-filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
+  select(aisle_id, aisle, product_name) %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
 count(aisle, product_name) %>% 
 group_by(aisle) %>% 
-top_n(3)
+top_n(3) %>% 
+  knitr::kable()
 
+instacart2
 ```
+
 # Description of the dataframe 
 * The size of the dataset instacart is `r nrow(instacart)` rows and `r ncol(instacart)` columns.
 * Some of the key variables are order_id and product_name
 * The most number of orders are placed from the fresh vegetables aisle and fresh vegetables aisle. 
 * The 3 most popular items ordered from these aisles are: 
--baking ingredients: Light brown sugar (499), pure baking soda (387), and cane sugar (336)
--dog food care: Snack Sticks Chicken & Rice Recipe Dog Treats (30), Organix Chicken & Brown Rice Recipe (28), Small Dog Biscuits (26)
--packaged food vegetables: Organic Baby Spinach (9784), Organic Raspberries (5546), Organic Blueberries (4966)
+* baking ingredients: Light brown sugar (499), pure baking soda (387), and cane sugar (336)
+* dog food care: Snack Sticks Chicken & Rice Recipe Dog Treats (30), Organix Chicken & Brown Rice Recipe (28), Small Dog Biscuits (26)
+* packaged food vegetables: Organic Baby Spinach (9784), Organic Raspberries (5546), Organic Blueberries (4966)
 
 ```{r Coffee Ice cream & Apples}
 #A table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week
 icecream_apples = instacart %>% 
   filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
-  select(order_hour_of_day, product_name) %>% 
-  avg()
+  select(order_dow, order_hour_of_day, product_name) %>%
+  arrange(desc(order_dow)) %>% 
+  group_by(order_dow) %>% 
+  summarise(average_order_hour_of_day = mean(order_hour_of_day)) %>% 
+  mutate(order_dow = recode(order_dow, `1` = 'Mon', `2` = 'Tues', `3` = 'Wed', `4` = 'Thur', `5` = 'Fri', `6` = 'Sat', `0` = 'Sun')) %>% 
+  pivot_wider(names_from = order_dow, values_from = average_order_hour_of_day)
+  knitr::kable(icecream_apples)
 
 ```
 
+```{r Problem 2}
+
+
+  
+```
 
