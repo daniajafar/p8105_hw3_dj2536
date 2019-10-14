@@ -62,6 +62,7 @@ icecream_apples = instacart %>%
 
 ```
 
+#Problem #2
 ```{r Problem 2}
 
 data("brfss_smart2010") 
@@ -128,7 +129,7 @@ facet_grid(year ~.) +
 labs(x = "Response", y = "Data Value", title = "Distribution of responses among locations in NY")
 ```
 
-
+#Problem #3
 ```{r Problem 3}
 accel= read_csv("accel_data.csv") %>% 
   janitor::clean_names() %>% 
@@ -141,7 +142,7 @@ mutate(
   WeekDay = ifelse(day == "Saturday" | day == "Sunday", "weekend", "weekday")
 ) %>% #A new variable to indicate whether the day is a weekday or weekend 
   mutate(
-  activity_number = factor(activity_number)) # change activity number as a factor
+  activity_number = factor(activity_number)) # change activity number to a factor
 
   knitr::kable(head(accel,30)) # looking at the first 30 observations. 
 ```

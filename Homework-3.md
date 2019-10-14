@@ -98,6 +98,8 @@ icecream_apples = instacart %>%
 | ---: | -------: | -------: | -------: | -------: | -------: | ----: |
 | 13.6 | 12.17391 | 12.83824 | 14.68519 | 13.17308 | 12.64286 | 13.25 |
 
+\#Problem \#2
+
 ``` r
 data("brfss_smart2010") 
 health = brfss_smart2010 %>% 
@@ -174,6 +176,8 @@ labs(x = "Response", y = "Data Value", title = "Distribution of responses among 
 
 ![](Homework-3_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
+\#Problem \#3
+
 ``` r
 accel= read_csv("accel_data.csv") %>% 
   janitor::clean_names() %>% 
@@ -186,7 +190,7 @@ mutate(
   WeekDay = ifelse(day == "Saturday" | day == "Sunday", "weekend", "weekday")
 ) %>% #A new variable to indicate whether the day is a weekday or weekend 
   mutate(
-  activity_number = factor(activity_number)) # change activity number as a factor
+  activity_number = factor(activity_number)) # change activity number to a factor
 ```
 
     ## Parsed with column specification:
