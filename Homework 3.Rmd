@@ -39,6 +39,7 @@ instacart2
 ```
 
 # Description of the dataframe 
+
 * The size of the dataset instacart is `r nrow(instacart)` rows and `r ncol(instacart)` columns.
 * Some of the key variables are order_id and product_name
 * The most number of orders are placed from the fresh vegetables aisle and fresh vegetables aisle. 
@@ -63,7 +64,113 @@ icecream_apples = instacart %>%
 
 ```{r Problem 2}
 
+data("brfss_smart2010") 
+health = brfss_smart2010 %>% 
+  janitor::clean_names() %>% 
+  filter(topic == "Overall Health") %>% 
+  filter(response %in% c("Excellent", "Very good", "Good", "Fair", "Poor")) %>%
+  mutate(
+    response = as.factor(response), 
+    response = fct_relevel(response, c("Poor","Fair", "Good","Very good","Excellent"))) %>% 
+    arrange(response, desc(response))
+```  
 
-  
+
+```{r}
+data("brfss_smart2010") 
+states = brfss_smart2010 %>% 
+  janitor::clean_names() %>%
+  select(locationabbr, locationdesc, year) %>% 
+  filter(year %in% c("2002","2010")) %>%
+  group_by(year, locationabbr) %>% 
+  summarise(n_location = n_distinct(locationdesc)) %>%
+  filter(n_location >= 7)
+```
+In 2002, there were 6 states that were observed at 7 or more locations. They were CT, FL, MA, NC, NJ, and PA. 
+
+In 2010, there was a significant increase in the number of locations that satisfy our requirements. Specifically, 14 states were observed at 7 or more locations. They were CA, CO, FL, MA, MD, NC, NE, NJ, NY, OH, PA, SC, TX, and WA. 
+
+```{r}
+data("brfss_smart2010") 
+excellent = brfss_smart2010 %>% 
+  janitor::clean_names() %>%
+  select(year, locationabbr, response, data_value) %>% 
+  filter(response == "Excellent") %>%
+  group_by(year, locationabbr) %>% 
+  summarise(mean_val = mean(data_value)) 
 ```
 
+#Creating a spaghetti plot
+
+```{r Spaghetti}
+ggplot(excellent, aes(x = year, y = mean_val, color = factor(locationabbr))) +geom_line() +theme_bw()
+```
+
+#Two panel plot
+
+```{r}
+plot = brfss_smart2010 %>%
+  janitor::clean_names() %>%
+  filter(year %in% c("2006","2010"),response %in% c("Excellent", "Very good", "Good", "Fair","Poor")) %>%
+  select(year, locationabbr, response, data_value, locationdesc) %>%
+drop_na() %>%
+mutate(
+response = as.factor(response),
+response = fct_relevel(
+response, "Poor","Fair","Good","Very good","Excellent")) %>%
+filter(locationabbr == "NY") %>%
+group_by(year, locationdesc, locationabbr)
+
+
+ggplot(plot, aes(x = response, y = data_value, fill = locationdesc)) +
+geom_bar(stat = "identity", position = "dodge") +
+facet_grid(year ~.) +
+labs(x = "Response", y = "Data Value", title = "Distribution of responses among locations in NY")
+```
+
+
+```{r Problem 3}
+accel= read_csv("accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    activity_1:activity_1440,
+    names_to = "activity_number",
+    values_to = "activity_counts"
+  ) %>% 
+mutate(
+  WeekDay = ifelse(day == "Saturday" | day == "Sunday", "weekend", "weekday")
+) %>% #A new variable to indicate whether the day is a weekday or weekend 
+  mutate(
+  activity_number = factor(activity_number)) # change activity number as a factor
+
+  knitr::kable(head(accel,30)) # looking at the first 30 observations. 
+```
+
+* The total number of rows in accel_data are `r nrow(accel)` and the total number of columns are `r ncol(accel)`.
+
+```{r}
+accel_day = 
+accel %>% 
+  group_by(week,day) %>%
+  mutate(
+    sum_activity_day = sum(activity_counts)
+    ) %>% 
+  select(week, day_id, day, sum_activity_day) %>% 
+  distinct()
+  knitr::kable(accel_day)
+```
+
+
+A plot:
+```{r}
+accel %>% mutate(
+  activity_number = factor(substr(activity_number,10,13), ordered = TRUE, levels = c(1:1440))
+  ) %>% 
+  ggplot(aes(x = factor(activity_number), y = activity_counts, fill = day)) +
+  scale_x_discrete(breaks = seq(60, 1440, by=60),labels = as.character(c(1:24))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Inspection Activity over Day",
+    x = "Week",
+    y = "Count of Activity per Day"
+  )
